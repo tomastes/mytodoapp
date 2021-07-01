@@ -4,13 +4,13 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { MdAdd } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { fetchProductsAsync, fetchTodosAsync } from "../../features/Middleware";
 import {
   closeModal,
   openModal,
   selectModalState,
 } from "../../features/modalSlice";
 import {
-  fetchTodosAsync,
   selectTodos,
   setTodos,
   setTodoToEdit,
@@ -25,7 +25,10 @@ const Home = () => {
   const modalState = useSelector(selectModalState);
   // fetch todos async
   useEffect(() => {
-    //  dispatch(fetchTodosAsync(user.uid));
+    dispatch(fetchTodosAsync(user.uid));
+    // test asyncThunk
+    dispatch(fetchProductsAsync());
+
     fetchTodos();
   }, []);
 

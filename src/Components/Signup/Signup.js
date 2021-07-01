@@ -73,6 +73,7 @@ const Signup = () => {
                 history.push("/");
               })
               .catch((error) => {
+                setLoading(false);
                 alert(error.message);
               });
           });
