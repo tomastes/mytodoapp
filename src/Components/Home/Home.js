@@ -18,17 +18,17 @@ import {
 import db, { auth } from "../../firebase";
 import Modal from "../Modal/Modal";
 import RenderTodos from "./RenderTodos";
+
 const Home = () => {
   const [user] = useAuthState(auth);
   const [todos, setTodos] = useState([]);
   const dispatch = useDispatch();
   const modalState = useSelector(selectModalState);
-  // fetch todos async
+
   useEffect(() => {
-    dispatch(fetchTodosAsync(user.uid));
+    //? dispatch(fetchTodosAsync(user.uid));
     // test asyncThunk
     dispatch(fetchProductsAsync());
-
     fetchTodos();
   }, []);
 

@@ -16,6 +16,8 @@ import NotFound from "./utils/NotFound";
 
 function App() {
   const [user] = useAuthState(auth);
+
+  // ! login with redux
   // useEffect(() => {
   //   auth.onAuthStateChanged((user) => {
   //     if (user) {
@@ -42,6 +44,7 @@ function App() {
           <Route path="/setting">{user ? <Setting /> : <Login />}</Route>
           <Route path="/login">{!user ? <Login /> : <Home />}</Route>
           <Route path="/signup">{!user ? <Signup /> : <Home />}</Route>
+          {/* unknown route */}
           <Route component={NotFound} />
         </Switch>
       </Layout>

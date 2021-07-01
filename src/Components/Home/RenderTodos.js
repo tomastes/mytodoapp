@@ -19,11 +19,13 @@ import {
   setTodoToEdit,
 } from "../../features/todosSlice";
 import { useAuthState } from "react-firebase-hooks/auth";
+
 const RenderTodos = ({ todos }) => {
+  const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const todoss = useSelector(selectTodos);
   const [filter, setFilter] = useState("all");
-  const dispatch = useDispatch();
+
   useEffect(() => {
     if (filter == "completed") {
       const filterd = todos?.filter((todo) => todo.data.completed == true);
@@ -36,12 +38,8 @@ const RenderTodos = ({ todos }) => {
     }
   }, [filter, todos]);
 
-  const handleFilter = (e) => {
-    setFilter(e.target.value);
-  };
   // delete todo
   const deleteTodo = (id) => {
-    // delete from db
     db.collection("todos")
       .doc(user.uid)
       .collection("todoArray")
@@ -50,6 +48,7 @@ const RenderTodos = ({ todos }) => {
       .then(() => {})
       .catch((e) => console.error("error"));
   };
+
   // updateTodo
   const updateTodo = (id) => {
     dispatch(openModal());
@@ -60,6 +59,7 @@ const RenderTodos = ({ todos }) => {
       })
     );
   };
+
   // change status
   const changeStatus = (id, status) => {
     db.collection("todos")
@@ -83,7 +83,7 @@ const RenderTodos = ({ todos }) => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             value={filter}
-            onChange={(e) => handleFilter(e)}
+            onChange={(e) => setFilter(e.target.value)}
           >
             <MenuItem value="All">All</MenuItem>
             <MenuItem value="completed">completed</MenuItem>
