@@ -71,6 +71,7 @@ const Home = () => {
 export default Home;
 const Container = styled.div`
   background-color: whitesmoke;
+  height: 100vh;
 `;
 
 const BtnOpenModal = styled(IconButton)`
