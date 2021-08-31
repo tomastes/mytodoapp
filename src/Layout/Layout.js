@@ -1,11 +1,14 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import Footer from "../Components/Footer/Footer";
 import Header from "../Components/Header/Header";
+import { selectAppState } from "../features/appSlice";
 
 const Layout = ({ children }) => {
+  const darkModeState = useSelector(selectAppState);
   return (
-    <Container>
+    <Container nightMode={darkModeState}>
       <Header />
       <main>{children}</main>
       <Footer />
@@ -20,5 +23,5 @@ const Container = styled.div`
   width: 100%;
   height: 100vh;
   margin: auto;
-  background-color: white;
+  background-color: ${(props) => (props.nightMode == true ? "black" : "white")};
 `;

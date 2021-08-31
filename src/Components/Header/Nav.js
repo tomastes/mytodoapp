@@ -14,12 +14,9 @@ const Nav = () => {
       {user ? (
         <>
           <Div1 onMouseOver={(e) => setShowDropDown(true)}>
-            <Avatar src={user.photoURL}>{`${user.displayName.slice(
-              0,
-              2
-            )}`}</Avatar>
+            <Avatar src={user?.photoURL} />
             <Div2>
-              <P>{`hey, ${user.displayName.slice(0, 7)}`}</P>
+              <P>{`hey, ${user?.displayName}`}</P>
             </Div2>
           </Div1>
           {showDropDown && (

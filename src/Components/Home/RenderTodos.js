@@ -19,11 +19,18 @@ import {
   setTodoToEdit,
 } from "../../features/todosSlice";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { Droppable } from "react-beautiful-dnd";
+import Todo from "./Todo";
+import { selectAppState } from "../../features/appSlice";
+
 const RenderTodos = ({ todos }) => {
+  const dispatch = useDispatch();
+  const darkModeState = useSelector(selectAppState);
+
   const [user] = useAuthState(auth);
   const todoss = useSelector(selectTodos);
   const [filter, setFilter] = useState("all");
-  const dispatch = useDispatch();
+
   useEffect(() => {
     if (filter == "completed") {
       const filterd = todos?.filter((todo) => todo.data.completed == true);
@@ -36,40 +43,8 @@ const RenderTodos = ({ todos }) => {
     }
   }, [filter, todos]);
 
-  const handleFilter = (e) => {
-    setFilter(e.target.value);
-  };
-  // delete todo
-  const deleteTodo = (id) => {
-    // delete from db
-    db.collection("todos")
-      .doc(user.uid)
-      .collection("todoArray")
-      .doc(id)
-      .delete()
-      .then(() => {})
-      .catch((e) => console.error("error"));
-  };
-  // updateTodo
-  const updateTodo = (id) => {
-    dispatch(openModal());
-    dispatch(
-      setTodoToEdit({
-        id,
-        EditingMode: true,
-      })
-    );
-  };
-  // change status
-  const changeStatus = (id, status) => {
-    db.collection("todos")
-      .doc(user?.uid)
-      .collection("todoArray")
-      .doc(id)
-      .update({ completed: !status });
-  };
   return (
-    <Container>
+    <Container darkMode={darkModeState}>
       {/* search and filter container */}
 
       <Div1>
@@ -83,7 +58,7 @@ const RenderTodos = ({ todos }) => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             value={filter}
-            onChange={(e) => handleFilter(e)}
+            onChange={(e) => setFilter(e.target.value)}
           >
             <MenuItem value="All">All</MenuItem>
             <MenuItem value="completed">completed</MenuItem>
@@ -93,37 +68,30 @@ const RenderTodos = ({ todos }) => {
       </Div1>
       {/* todos list */}
       <Title>you are going to</Title>
-      {todoss?.map(({ id, data: { completed, deadline, timestamp, todo } }) => (
-        <Div2 key={id} id={id}>
-          <Text>{todo}</Text>
-          <DateTime>
-            <Date>
-              before {deadline.split("T")[0]}
-              <Time> at {deadline.split("T")[1]}</Time>
-            </Date>
-          </DateTime>
-          <IconButtons>
-            <IconButton
-              onClick={(e) => deleteTodo(id)}
-              color="secondary"
-              aria-label="delete"
-            >
-              <Delete />
-            </IconButton>
-            <IconButton
-              onClick={(e) => updateTodo(id, completed)}
-              color="primary"
-            >
-              <Edit />
-            </IconButton>
-            <Checkbox
-              checked={completed}
-              onChange={(e) => changeStatus(id, completed)}
-              color="primary"
-            />
-          </IconButtons>
-        </Div2>
-      ))}
+      <Droppable droppableId="1">
+        {(provided) => (
+          // column
+          <TodosList ref={provided.innerRef} {...provided.droppableProps}>
+            {todoss?.map(
+              (
+                { id, data: { completed, deadline, timestamp, todo } },
+                index
+              ) => (
+                <Todo
+                  index={index}
+                  key={id}
+                  id={id}
+                  completed={completed}
+                  deadline={deadline}
+                  timestamp={timestamp}
+                  todo={todo}
+                />
+              )
+            )}
+            {provided.placeholder}
+          </TodosList>
+        )}
+      </Droppable>
     </Container>
   );
 };
@@ -135,7 +103,8 @@ const Container = styled.div`
   align-items: center;
   margin-top: 1rem;
   padding: 10px;
-  background-color: whitesmoke;
+  background-color: ${(props) =>
+    props.darkMode == true ? "#303030" : "whitesmoke"};
 `;
 const Div1 = styled.div`
   display: flex;
@@ -165,6 +134,7 @@ const Title = styled.h2`
   padding-bottom: 5px;
   border-bottom: 1px solid gray;
 `;
+const TodosList = styled.div``;
 const Div2 = styled.div`
   margin-bottom: 1rem;
   background-color: white;

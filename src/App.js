@@ -13,9 +13,14 @@ import Layout from "./Layout/Layout";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
 import NotFound from "./utils/NotFound";
+import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { selectAppState } from "./features/appSlice";
 
 function App() {
   const [user] = useAuthState(auth);
+  const darkModeState = useSelector(selectAppState);
+  // ! login with redux
   // useEffect(() => {
   //   auth.onAuthStateChanged((user) => {
   //     if (user) {
@@ -34,19 +39,26 @@ function App() {
 
   return (
     <Router>
-      <Layout>
-        <Switch>
-          <Route exact path="/">
-            {user ? <Home /> : <Login />}
-          </Route>
-          <Route path="/setting">{user ? <Setting /> : <Login />}</Route>
-          <Route path="/login">{!user ? <Login /> : <Home />}</Route>
-          <Route path="/signup">{!user ? <Signup /> : <Home />}</Route>
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
+      <Div darkMode={darkModeState}>
+        <Layout>
+          <Switch>
+            <Route exact path="/">
+              {user ? <Home /> : <Login />}
+            </Route>
+            <Route path="/setting">{user ? <Setting /> : <Login />}</Route>
+            <Route path="/login">{!user ? <Login /> : <Home />}</Route>
+            <Route path="/signup">{!user ? <Signup /> : <Home />}</Route>
+            {/* unknown route */}
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </Div>
     </Router>
   );
 }
 
 export default App;
+const Div = styled.div`
+  height: 100vh;
+  background-color: ${(props) => (props.darkMode == true ? "black" : "white")};
+`;

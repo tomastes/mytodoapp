@@ -1,26 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import db from "../firebase";
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchProductsAsync, fetchTodosAsync } from "./Middleware";
 
-//! fetch async with thunk
-export const fetchTodosAsync = createAsyncThunk(
-  "todos/fetchTodos",
-  async (id) => {
-    let todos = [];
-    db.collection("todos")
-      .doc(id)
-      .collection("todoArray")
-      .onSnapshot((snapshot) => {
-        snapshot.docs.map((doc) => {
-          todos.push({
-            id: doc.id,
-            data: doc.data(),
-          });
-        });
-      });
-    console.log(todos.length);
-    return todos;
-  }
-);
 export const todosSlice = createSlice({
   name: "todos",
   initialState: {
@@ -28,6 +8,7 @@ export const todosSlice = createSlice({
     status: "idle",
     editingTodo: false,
     todoToEdit: null,
+    testData: null,
   },
   reducers: {
     setTodos: (state, action) => {
@@ -50,6 +31,9 @@ export const todosSlice = createSlice({
         state.status = "idle";
         console.log(Object.isExtensible(state.todos));
         //  state.todos = action.payload;
+      })
+      .addCase(fetchProductsAsync.fulfilled, (state, action) => {
+        state.testData = action.payload;
       });
   },
 });
