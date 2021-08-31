@@ -16,6 +16,7 @@ export const fetchTodosAsync = createAsyncThunk(
             data: doc.data(),
           });
         });
+        console.log(todos);
       });
     console.log(todos.length);
     return todos;
