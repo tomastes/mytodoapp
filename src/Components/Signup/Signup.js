@@ -1,11 +1,11 @@
 import { Button } from "@material-ui/core";
-import { AddCircleSharp, Label, Remove } from "@material-ui/icons";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import db, { auth, storage } from "../../firebase";
 import Counter from "../../utils/Counter";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const Signup = () => {
   const history = useHistory();
@@ -15,8 +15,10 @@ const Signup = () => {
     watch,
     formState: { errors },
   } = useForm();
+  // states
   const [todoAmount, setTodoAmount] = useState(10);
   const [noPwMatch, setNoPwMatch] = useState(false);
+  const [loading, setLoading] = useState(false);
   // addamount
   const addAmountBtnClicked = () => {
     setTodoAmount((todoAmount) => (todoAmount += 1));
@@ -31,6 +33,7 @@ const Signup = () => {
     if (data.password !== data.confirmPassword) {
       return setNoPwMatch(true);
     }
+    setLoading(true);
     //upload image
     const uploadTask = storage
       .ref(`profileImages/${data.profilePic[0]?.name}`)
@@ -50,20 +53,26 @@ const Signup = () => {
             auth
               .createUserWithEmailAndPassword(data.email, data.password)
               .then((userAuth) => {
-                console.log(userAuth.user.uid);
-                console.log(url);
-                userAuth.user.updateProfile({
-                  displayName: data.fullname,
-                  photoURL: url,
-                });
-                db.collection("todos")
-                  .doc(userAuth?.user.uid)
-                  .add({
-                    maxTodo: parseInt(todoAmount),
+                // udpate userprofile
+                userAuth.user
+                  .updateProfile({
+                    displayName: data.fullname,
+                    photoURL: url,
+                  })
+                  .then(() => {
+                    // add max todos
+                    db.collection("todos")
+                      .doc(userAuth?.user.uid)
+                      .set({
+                        maxTodo: parseInt(todoAmount),
+                      });
                   });
-                history.push("/login");
+
+                setLoading(false);
+                history.push("/");
               })
               .catch((error) => {
+                setLoading(false);
                 alert(error.message);
               });
           });
@@ -78,7 +87,7 @@ const Signup = () => {
       <Form onSubmit={handleSubmit(signUpHandler)}>
         <Input
           {...register("fullname", { required: true })}
-          placeholder="fullname"
+          placeholder="username"
         />
         {errors.fullname?.type === "required" && (
           <Span error>name is required.</Span>
@@ -98,7 +107,7 @@ const Signup = () => {
         <Input
           type="password"
           {...register("confirmPassword", { required: true })}
-          placeholder="confirmPassword"
+          placeholder="confirm Password"
         />
         {errors.password?.type === "required" && (
           <Span error>password is required.</Span>
@@ -118,7 +127,11 @@ const Signup = () => {
           removeAmountBtnClicked={removeAmountBtnClicked}
           todoAmount={todoAmount}
         />
-        <BtnSubmit type="submit">sign up</BtnSubmit>
+        <BtnSubmit type="submit">
+          {" "}
+          {loading && <CircularProgress color="secondary" />}
+          sign up
+        </BtnSubmit>
       </Form>
     </Container>
   );

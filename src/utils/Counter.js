@@ -48,11 +48,7 @@ const P = styled.p`
   margin-right: 1rem;
   font-size: 16px;
 `;
-const Span = styled.span`
-  font-size: 12px;
-  font-style: italic;
-  color: ${(props) => (props.error ? "#8f1818" : "gray")};
-`;
+
 const Div1 = styled.div`
   display: flex;
 `;

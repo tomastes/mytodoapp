@@ -1,16 +1,18 @@
 import { IconButton } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
+import { DragDropContext } from "react-beautiful-dnd";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { MdAdd } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { selectAppState } from "../../features/appSlice";
+import { fetchProductsAsync, fetchTodosAsync } from "../../features/Middleware";
 import {
   closeModal,
   openModal,
   selectModalState,
 } from "../../features/modalSlice";
 import {
-  fetchTodosAsync,
   selectTodos,
   setTodos,
   setTodoToEdit,
@@ -18,14 +20,20 @@ import {
 import db, { auth } from "../../firebase";
 import Modal from "../Modal/Modal";
 import RenderTodos from "./RenderTodos";
+
 const Home = () => {
+  const todoss = useSelector(selectTodos);
+  const darkModeState = useSelector(selectAppState);
+
   const [user] = useAuthState(auth);
   const [todos, setTodos] = useState([]);
   const dispatch = useDispatch();
   const modalState = useSelector(selectModalState);
-  // fetch todos async
+
   useEffect(() => {
-    //  dispatch(fetchTodosAsync(user.uid));
+    //? dispatch(fetchTodosAsync(user.uid));
+    // test asyncThunk
+    dispatch(fetchProductsAsync());
     fetchTodos();
   }, []);
 
@@ -43,8 +51,17 @@ const Home = () => {
         );
       });
   };
+
+  const dragEnded = (result) => {
+    console.log(result);
+    //console.log(todoss);
+    const items = [...todoss];
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setTodos(items);
+  };
   return (
-    <Container>
+    <Container darkMode={darkModeState}>
       {/* modal */}
       <Modal
         isOpen={modalState}
@@ -59,7 +76,10 @@ const Home = () => {
         }}
       />
       {/* render todos compo */}
-      <RenderTodos todos={todos} />
+      <DragDropContext onDragEnd={dragEnded}>
+        <RenderTodos todos={todos} />
+      </DragDropContext>
+
       {/* btn modal toggler */}
       <BtnOpenModal onClick={(e) => dispatch(openModal())}>
         <AddIcon />
@@ -70,7 +90,9 @@ const Home = () => {
 
 export default Home;
 const Container = styled.div`
-  background-color: whitesmoke;
+  background-color: ${(props) =>
+    props.darkMode == true ? "#303030" : "whitesmoke"};
+  height: 100vh;
 `;
 
 const BtnOpenModal = styled(IconButton)`
